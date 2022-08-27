@@ -3,6 +3,7 @@ const { User } = require("../../FSO-13/models");
 const router = require("express").Router();
 const { Blog } = require("../models");
 const { SECRET } = require("../util/config");
+const { Op } = require("sequelize");
 
 const tokenExtractor = async (req, res, next) => {
   const authorization = req.get("authorization");
@@ -24,6 +25,24 @@ const blogFinder = async (req, res, next) => {
 };
 
 router.get("/", async (req, res) => {
+  let where = {};
+  if (req.query.search) {
+    where = {
+      [Op.or]: [
+        {
+          title: {
+            [Op.substring]: req.query.search ? req.query.search : "",
+          },
+        },
+        {
+          author: {
+            [Op.substring]: req.query.search ? req.query.search : "",
+          },
+        },
+      ],
+    };
+  }
+
   const blogs = await Blog.findAll({
     attributes: {
       exclude: ["userId"],
@@ -32,8 +51,9 @@ router.get("/", async (req, res) => {
       model: User,
       attributes: ["username"],
     },
+    where,
+    order: [["likes", "DESC"]],
   });
-  console.log(JSON.stringify(blogs, null, 2));
   res.json(blogs);
 });
 
