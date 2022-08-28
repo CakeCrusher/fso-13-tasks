@@ -4,6 +4,7 @@ const blogsRouter = require("./controllers/blogs");
 const usersRouter = require("./controllers/users");
 const loginRouter = require("./controllers/login");
 const authorRouter = require("./controllers/authors");
+const readingListRouter = require("./controllers/reading_list");
 const { connectToDatabase } = require("./util/db");
 const { PORT } = require("./util/config");
 
@@ -14,6 +15,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/blogs", blogsRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/authors", authorRouter);
+app.use("/api/readinglist", readingListRouter);
 
 app.use((err, req, res, next) => {
   if (err.message === "input error") {
