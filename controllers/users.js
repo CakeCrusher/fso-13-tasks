@@ -9,6 +9,7 @@ router.post("/", async (req, res) => {
     if (error.message.includes("Validation isEmail on username failed")) {
       throw Error("not email format error");
     }
+    console.log(error);
     throw Error("input error");
   }
 });

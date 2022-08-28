@@ -28,6 +28,10 @@ app.use((err, req, res, next) => {
     res.status(404);
     res.json({ error: "not authorized" });
   }
+  if (err.message === "year written invalid") {
+    res.status(400);
+    res.json({ error: "year written invalid" });
+  }
   next(err);
 });
 

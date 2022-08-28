@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../../FSO-13/models");
 const router = require("express").Router();
-const { Blog } = require("../models");
+const { Blog, User } = require("../models");
 const { SECRET } = require("../util/config");
 const { Op } = require("sequelize");
 
@@ -62,10 +61,16 @@ router.post("/", tokenExtractor, async (req, res) => {
     const user = await User.findByPk(req.decodedToken.id);
     const blog = await Blog.create({
       ...req.body,
+      yearWritten: new Date().getFullYear(),
       userId: user.id,
     });
     res.json(blog);
   } catch (error) {
+    console.log("error", error);
+    if (error.message.includes("less than or equal to current year")) {
+      console.log("!init");
+      throw Error("year written invalid");
+    }
     throw Error("input error");
   }
 });
