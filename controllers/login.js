@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
 const router = require("express").Router();
-const { User } = require("../models");
+const { User, Session } = require("../models");
 const { SECRET } = require("../util/config");
+const { tokenExtractor } = require("../util/middleware");
 
-router.post("/", async (req, res) => {
+router.post("/login", async (req, res) => {
   const user = await User.findOne({
     where: {
       username: req.body.username,
@@ -25,11 +26,29 @@ router.post("/", async (req, res) => {
   };
   const token = jwt.sign(userForToken, SECRET);
 
+  const session = await Session.create({
+    userId: user.id,
+    token,
+  });
+
+  console.log("session: ", session);
+
   res.json({
     token,
     username: user.username,
     name: user.name,
   });
+});
+
+router.post("/logout", tokenExtractor, async (req, res) => {
+  // delete the session for this user
+  await Session.destroy({
+    where: {
+      userId: req.decodedToken.id,
+    },
+  });
+
+  res.status(204).end();
 });
 
 module.exports = router;
